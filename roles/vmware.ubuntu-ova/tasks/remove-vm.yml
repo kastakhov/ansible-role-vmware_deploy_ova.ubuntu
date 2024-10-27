@@ -1,0 +1,12 @@
+---
+- name: Removing VM {{ vm_hostname }}
+  community.vmware.vmware_guest:
+    hostname: '{{ vmware_vc_url }}'
+    username: '{{ vmware_vc_user }}'
+    password: '{{ vmware_vc_password }}'
+    validate_certs: '{{ vmware_validate_certs }}'
+    datacenter: '{{ vmware_dc }}'
+    name: "{{ vm_hostname }}"
+    state: absent
+    force: true
+  ignore_errors: true # noqa: ignore-errors

@@ -1,0 +1,56 @@
+---
+- name: Convert User-Data to base64
+  ansible.builtin.set_fact:
+    vm_user_data_b64: '{{ vm_user_data | b64encode }}'
+
+- name: Create folder in the VMware inventory
+  community.vmware.vcenter_folder:
+    hostname: '{{ vmware_vc_url }}'
+    username: '{{ vmware_vc_user }}'
+    password: '{{ vmware_vc_password }}'
+    validate_certs: '{{ vmware_validate_certs }}'
+    datacenter_name: '{{ vmware_dc }}'
+    folder_name: '{{ vmware_vm_folder }}'
+    folder_type: vm
+    parent_folder: '{{ vmware_vm_parrent_folder }}'
+    state: present
+
+- name: Deploy OVA
+  community.vmware.vmware_deploy_ovf:
+    hostname: '{{ vmware_vc_url }}'
+    username: '{{ vmware_vc_user }}'
+    password: '{{ vmware_vc_password }}'
+    validate_certs: '{{ vmware_validate_certs }}'
+    datacenter: '{{ vmware_dc }}'
+    cluster: '{{ vmware_cluster }}'
+    folder: '/{{ vmware_dc }}/vm/{{ vmware_vm_parrent_folder }}/{{ vmware_vm_folder }}'
+    name: '{{ vm_hostname }}'
+    datastore: '{{ vmware_vm_datastore }}'
+    networks: '{u"VM Network":u"{{ vmware_vm_network_label }}"}'
+    ova: '{{ cloud_image_destination }}'
+    properties:
+      hostname: '{{ vm_hostname }}'
+      public-keys: '{{ vm_public_keys }}'
+      user-data: '{{ vm_user_data_b64 }}'
+    power_on: true
+    wait_for_ip_address: true
+  register: _instance
+
+- name: Set instance facts
+  ansible.builtin.set_fact:
+    instance_moid: '{{ _instance.instance.moid }}'
+    instance_host: '{{ _instance.instance.hw_esxi_host }}'
+    instance_mac_address: '{{ _instance.instance.hw_eth0.macaddress }}'
+
+- name: Waiting until VM will be powered off (max 10 minutes)
+  community.vmware.vmware_guest_info:
+    hostname: '{{ vmware_vc_url }}'
+    username: '{{ vmware_vc_user }}'
+    password: '{{ vmware_vc_password }}'
+    validate_certs: '{{ vmware_validate_certs }}'
+    datacenter: '{{ vmware_dc }}'
+    moid: '{{ instance_moid }}'
+  register: _vm_power_state
+  delay: 10
+  retries: 60
+  until: _vm_power_state.instance.hw_power_status == "poweredOff"

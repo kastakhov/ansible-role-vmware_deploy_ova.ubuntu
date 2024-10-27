@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+source "{$activate_path}"
+ANSIBLE_CMD="{$ansible_playbook_path}"
+
+INOPTS=("$@")
+
+export ANSIBLE_COLLECTIONS_PATH={$ansibe_collections_path}
+
+LOG_FILE_DIR="$(pwd)/logs"
+if [ ! -d "$LOG_FILE_DIR" ]; then
+    mkdir -p "$LOG_FILE_DIR"
+fi
+
+LOG_FILE_NAME="$(date +%Y%m%d_%H%M%S).log"
+
+$ANSIBLE_CMD "$\{INOPTS[@]\}" | tee "$LOG_FILE_DIR/$LOG_FILE_NAME"

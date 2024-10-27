@@ -1,0 +1,53 @@
+
+- name: Gather info about the VM
+  community.vmware.vmware_guest_info:
+    hostname: '{{ vmware_vc_url }}'
+    username: '{{ vmware_vc_user }}'
+    password: '{{ vmware_vc_password }}'
+    validate_certs: '{{ vmware_validate_certs }}'
+    datacenter: '{{ vmware_dc }}'
+    moid: '{{ instance_moid }}'
+  register: _instance
+  delay: 10
+  retries: 12
+  until: _instance.instance.hw_eth0.ipaddresses is not none
+
+# Remove Link Local IPv4 and IPv6 addresses,
+# assume DHCP allocated only one IP address per each type.
+- name: Lookup the VM IP addresses
+  ansible.builtin.set_fact:
+    instance_ipv4_address: >-
+      {{ _instance.instance.hw_eth0.ipaddresses
+        | map('ipv4', 'address')
+        | select('!=', false)
+        | reject('match', '^169\.254\.')
+        | trim
+      }}
+    instance_ipv6_address: >-
+      {{ _instance.instance.hw_eth0.ipaddresses
+        | map('ipv6', 'address')
+        | select('!=', false)
+        | reject('match', '^[Ff][Ee][8-9A-Ba-b][0-9A-Fa-f]:')
+        | trim
+        | lower
+      }}
+
+- name: Update IPv4 address details
+  ansible.builtin.set_fact:
+    instance_ipv4_address: |-
+      {%- if instance_ipv4_address | length > 0 -%}
+        {{ instance_ipv4_address | last }}
+      {%- else -%}
+        N/A
+      {%- endif -%}
+  when: instance_ipv4_address| length > 0
+
+- name: Update IPv6 address details
+  ansible.builtin.set_fact:
+    instance_ipv6_address: |-
+      {%- if instance_ipv6_address | length > 0 -%}
+        {{ instance_ipv6_address | last }}
+      {%- else -%}
+        N/A
+      {%- endif -%}
+  when: instance_ipv6_address | length > 0

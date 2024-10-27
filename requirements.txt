@@ -1,0 +1,11 @@
+aiohttp
+ansible-core>=2.17.0, == 2.17.*
+ansible-lint
+ansible-pylibssh
+ansible>=10.4.0, == 10.4.*
+netaddr
+pyvmomi>=8.0.0.0
+requests
+wheel
+PyYAML>=3.11
+jsonpatch

@@ -1,0 +1,70 @@
+---
+- name: Loading User defaults
+  ansible.builtin.include_vars:
+    dir: vars
+    files_matching: local-vars.yml
+    ignore_files: ".*.tmpl"
+  run_once: true
+
+- name: Loading VMWare defaults
+  ansible.builtin.include_vars:
+    dir: vars
+    files_matching: local-vmware.yml
+    ignore_files: ".*.tmpl"
+  run_once: true
+
+- name: Loading OS defaults
+  ansible.builtin.include_vars:
+    dir: "vars/ubuntu"
+  run_once: true
+
+- name: Running Download OVA task
+  ansible.builtin.include_tasks: download-ova.yml
+  run_once: true
+
+- name: Running Remove VM task
+  ansible.builtin.include_tasks: remove-vm.yml
+  when: (vm_redeploy | default(false))
+
+- name: Running Check VM exists task
+  ansible.builtin.include_tasks: check-vm-exists.yml
+
+- name: Running Deploy OVA task
+  ansible.builtin.include_tasks: deploy-ubuntu-ova.yml
+  when: not vm_exists
+
+- name: Runnimg Adjust VM parameters task
+  ansible.builtin.include_tasks: adjust-vm-parameters.yml
+  when: not vm_exists
+
+- name: Running Power on vm task
+  ansible.builtin.include_tasks: power-on-vm.yml
+  when: not vm_exists
+
+- name: Running Gather VM details task
+  ansible.builtin.include_tasks: gethering-vm-details.yml
+  when: not vm_exists
+
+# Some statistics
+- name: Print VM details 
+  ansible.builtin.debug:
+    msg:
+      - "New '{{ vm_hostname }}' instance has been successfully deployed to:"
+      - " * Host: {{ instance_host }}"
+      - " * Folder: {{ vmware_vm_parrent_folder }}/{{ vmware_vm_folder }}"
+      - "Instance details:"
+      - " * MOID: {{ instance_moid }}"
+      - " * MAC Address: {{ instance_mac_address }}"
+      - " * IPv4 Address: {{ instance_ipv4_address }}"
+      - " * IPv6 Address: {{ instance_ipv6_address }}"
+      - " * RAM Size: {{ vm_ram_size }} Gb"
+      - " * DISK Size: {{ vm_disk_size }} Gb"
+      - " * CPU Cores: {{ vm_cpu_count }}"
+  when: not vm_exists
+
+- name: Print VM details 
+  ansible.builtin.debug:
+    msg:
+      - 'VM "{{ vm_hostname }}" already exists'
+      - '{{ _vm_esists.folders }}'
+  when: vm_exists

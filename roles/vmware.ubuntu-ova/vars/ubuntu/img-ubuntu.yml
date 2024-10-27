@@ -1,0 +1,7 @@
+---
+cloud_image_version_name: noble
+cloud_image_name: "{{ cloud_image_version_name }}-server-cloudimg-amd64.ova"
+cloud_image_url: "https://cloud-images.ubuntu.com/{{ cloud_image_version_name }}/current/{{ cloud_image_name }}"
+cloud_image_checksum_url: "https://cloud-images.ubuntu.com/{{ cloud_image_version_name }}/current/SHA256SUMS"
+cloud_image_destination: "{{ playbook_dir }}/images/{{ cloud_image_name }}"
+cloud_image_checksum_destination: "{{ playbook_dir }}/images/SHA256SUMS"

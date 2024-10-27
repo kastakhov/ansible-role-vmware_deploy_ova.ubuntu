@@ -1,0 +1,34 @@
+---
+- name: Adjust the VM HW parameters
+  community.vmware.vmware_guest:
+    hostname: '{{ vmware_vc_url }}'
+    username: '{{ vmware_vc_user }}'
+    password: '{{ vmware_vc_password }}'
+    validate_certs: '{{ vmware_validate_certs }}'
+    cluster: '{{ vmware_cluster }}'
+    datacenter: '{{ vmware_dc }}'
+    name: '{{ vm_hostname }}'
+    datastore: '{{ vmware_vm_datastore }}'
+    folder: '/{{ vmware_dc }}/vm/{{ vmware_vm_parrent_folder }}/{{ vmware_vm_folder }}'
+    state: present
+    hardware:
+      memory_mb: '{{ vm_ram_size | int * 1024 }}'
+      num_cpus: '{{ vm_cpu_count }}'
+      num_cpu_cores_per_socket: '{{ vm_cpu_per_socket }}'
+    advanced_settings:
+      - key: "disk.EnableUUID"
+        value: "TRUE"
+
+- name: Resize the VM disk size
+  community.vmware.vmware_guest_disk:
+    hostname: '{{ vmware_vc_url }}'
+    username: '{{ vmware_vc_user }}'
+    password: '{{ vmware_vc_password }}'
+    validate_certs: '{{ vmware_validate_certs }}'
+    datacenter: '{{ vmware_dc }}'
+    moid: '{{ instance_moid }}'
+    disk:
+      - size_gb: '{{ vm_disk_size }}'
+        state: present
+        unit_number: 0
+        scsi_controller: 0

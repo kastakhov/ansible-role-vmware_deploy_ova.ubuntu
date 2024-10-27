@@ -1,0 +1,48 @@
+---
+- name: Create images dir if not exists
+  ansible.builtin.file:
+    path: '{{ playbook_dir }}/images'
+    state: directory
+    mode: u=rwx,g=rwx,o=rwx
+  delegate_to: localhost
+  register: _images_dir
+
+- name: Clean up checksum file from local storage
+  ansible.builtin.file:
+    path: "{{ cloud_image_checksum_destination }}"
+    state: 'absent'
+
+- name: Download OVA Checksum file locally
+  ansible.builtin.get_url:
+    url: "{{ cloud_image_checksum_url }}"
+    dest: "{{ cloud_image_checksum_destination }}"
+    mode: u=rw,g=r,o=r
+
+- name: Get checksum for {{ cloud_image_name }}
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      grep {{ cloud_image_name }} {{ cloud_image_checksum_destination }} | cut -d ' ' -f 1
+    executable: /bin/bash
+  register: _cloud_image_checksum
+  changed_when: _cloud_image_checksum.rc != 0
+
+- name: Get OVA checksum
+  ansible.builtin.stat:
+    path: "{{ cloud_image_destination }}"
+    checksum_algorithm: sha256
+    get_checksum: true
+  register: _cloud_image_checksum_stat
+
+- name: Compare OVA checksum
+  ansible.builtin.set_fact:
+    _cloud_image_checksum_equal: "{{ _cloud_image_checksum.stdout == _cloud_image_checksum_stat.stat.checksum }}"
+  when: _cloud_image_checksum_stat.stat.exists
+
+- name: Download OVA file locally
+  ansible.builtin.get_url:
+    url: "{{ cloud_image_url }}"
+    dest: "{{ cloud_image_destination }}"
+    checksum: "sha256:{{ _cloud_image_checksum.stdout }}"
+    mode: u=rw,g=r,o=r
+  when: _images_dir.changed or not (_cloud_image_checksum_equal | default(false))
