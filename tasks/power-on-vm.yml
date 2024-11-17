@@ -5,11 +5,8 @@
     username: '{{ vmware_vc_user }}'
     password: '{{ vmware_vc_password }}'
     validate_certs: '{{ vmware_validate_certs }}'
-    cluster: '{{ vmware_cluster }}'
     datacenter: '{{ vmware_dc }}'
     name: '{{ vm_hostname }}'
-    datastore: '{{ vmware_vm_datastore }}'
-    folder: '/{{ vmware_dc }}/vm/{{ vmware_vm_parrent_folder }}/{{ vmware_vm_folder }}'
     state: poweredon
 
 - name: Waiting until VM will be powered off (max 10 minutes)

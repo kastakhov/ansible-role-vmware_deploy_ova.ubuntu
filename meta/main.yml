@@ -1,0 +1,29 @@
+---
+dependencies: []
+
+galaxy_info:
+  role_name: vmware_deploy_ova.ubuntu
+  author: kastakhov
+  description: Role for deploying Ubuntu VM in VMware vSphere environment
+  license: "license (Apache 2.0)"
+  min_ansible_version: 2.17
+  platforms:
+    - name: Fedora
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - buster
+        - bullseye
+        - bookworm
+    - name: Ubuntu
+      versions:
+        - focal
+        - jammy
+        - noble
+    - name: Alpine
+      version:
+        - all
+    - name: ArchLinux
+      versions:
+        - all

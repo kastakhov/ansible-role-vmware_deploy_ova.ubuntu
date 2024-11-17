@@ -1,6 +1,0 @@
-- name: Deploy Ubuntu vm from scratch
-  hosts: localhost
-  become: false
-  gather_facts: false
-  roles:
-    - role: "vmware.ubuntu-ova"

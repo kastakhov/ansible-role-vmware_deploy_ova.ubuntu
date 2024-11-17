@@ -1,8 +1,4 @@
 ---
-- name: Convert User-Data to base64
-  ansible.builtin.set_fact:
-    vm_user_data_b64: '{{ vm_user_data | b64encode }}'
-
 - name: Create folder in the VMware inventory
   community.vmware.vcenter_folder:
     hostname: '{{ vmware_vc_url }}'
@@ -30,8 +26,7 @@
     ova: '{{ cloud_image_destination }}'
     properties:
       hostname: '{{ vm_hostname }}'
-      public-keys: '{{ vm_public_keys }}'
-      user-data: '{{ vm_user_data_b64 }}'
+      user-data: '{{ vm_user_data | b64encode }}'
     power_on: true
     wait_for_ip_address: true
   register: _instance

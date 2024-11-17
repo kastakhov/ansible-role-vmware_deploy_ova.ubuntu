@@ -16,14 +16,14 @@
 # assume DHCP allocated only one IP address per each type.
 - name: Lookup the VM IP addresses
   ansible.builtin.set_fact:
-    instance_ipv4_address: >-
+    instance_ipv4_address: |-
       {{ _instance.instance.hw_eth0.ipaddresses
         | map('ipv4', 'address')
         | select('!=', false)
         | reject('match', '^169\.254\.')
         | trim
       }}
-    instance_ipv6_address: >-
+    instance_ipv6_address: |-
       {{ _instance.instance.hw_eth0.ipaddresses
         | map('ipv6', 'address')
         | select('!=', false)
@@ -36,9 +36,9 @@
   ansible.builtin.set_fact:
     instance_ipv4_address: |-
       {%- if instance_ipv4_address | length > 0 -%}
-        {{ instance_ipv4_address | last }}
+      {{ instance_ipv4_address | last }}
       {%- else -%}
-        N/A
+      N/A
       {%- endif -%}
   when: instance_ipv4_address| length > 0
 
@@ -46,8 +46,8 @@
   ansible.builtin.set_fact:
     instance_ipv6_address: |-
       {%- if instance_ipv6_address | length > 0 -%}
-        {{ instance_ipv6_address | last }}
+      {{ instance_ipv6_address | last }}
       {%- else -%}
-        N/A
+      N/A
       {%- endif -%}
   when: instance_ipv6_address | length > 0
