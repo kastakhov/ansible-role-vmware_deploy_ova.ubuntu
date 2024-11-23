@@ -51,6 +51,7 @@ vm_user_data: |+
   package_update: true
   package_upgrade: true
   packages:
+    - acl
     - apt-transport-https
     - ca-certificates
     - curl
