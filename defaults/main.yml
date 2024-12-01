@@ -33,6 +33,44 @@ vm_redeploy: false
 # this key will be used in cloud-config for default user
 vm_public_key: ''
 
+vm_packages_to_install:
+- acl
+- apt-transport-https
+- ca-certificates
+- curl
+- dpkg
+- gawk
+- gnupg
+- gpg
+- grep
+- htop
+- iotop
+- nfs-common
+- nmap
+- open-iscsi
+- procps
+- python3-apt
+- software-properties-common
+- tmux
+- tzdata
+- util-linux
+- wget
+- xz-utils
+
+vm_time_zone: Etc/UTC
+
+vm_custom_files: []
+# - path: /foo/bar
+#   content: |
+#     "Hello, World!"
+#     asd
+#     asdasdf
+#     dasf123
+#   permissions: '0644'
+# - path: /foo/asd
+#   content: "Hello, World!\nASDASD\n"
+#   permissions: '0644'
+
 # cloud-config for the VM
 vm_user_data: |+
   #cloud-config
@@ -43,36 +81,16 @@ vm_user_data: |+
       shell: /usr/bin/bash
       lock_passwd: true
       ssh_authorized_keys:
-        - "{{ vm_public_key }}"
+        - '{{ vm_public_key }}'
   ntp:
     enabled: true
-  timezone: Etc/UTC
+  timezone: {{ vm_time_zone }}
   disable_root: true
   package_update: true
   package_upgrade: true
-  packages:
-    - acl
-    - apt-transport-https
-    - ca-certificates
-    - curl
-    - dpkg
-    - gawk
-    - gnupg
-    - gpg
-    - grep
-    - htop
-    - iotop
-    - nfs-common
-    - nmap
-    - open-iscsi
-    - procps
-    - python3-apt
-    - software-properties-common
-    - tmux
-    - tzdata
-    - util-linux
-    - wget
-    - xz-utils
+  {% if vm_packages_to_install is defined %}
+  packages: {{ vm_packages_to_install | to_yaml() | trim }}
+  {% endif %}
   write_files:
     - path: /etc/systemd/networkd.conf
       content: |
@@ -85,12 +103,10 @@ vm_user_data: |+
         DUIDType=link-layer-time
       permissions: '0644'
     - path: /etc/needrestart/conf.d/disable_service_restart.conf
-      content: |
-        $nrconf{restart} = 'l';
+      content: '$nrconf{restart} = "l";'
       permissions: '0644'
     - path: /etc/modprobe.d/blacklist-floppy.conf
-      content: |
-        blacklist floppy
+      content: 'blacklist floppy'
       permissions: '0644'
     - path: /etc/systemd/network/00-ensX.network
       content: |
@@ -107,13 +123,17 @@ vm_user_data: |+
         UseMTU=true
       permissions: '0644'
     - path: /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
-      content: |
-        network: {config: disabled}
+      content: 'network: {config: disabled}'
       permissions: '0644'
+  {% if vm_custom_files is defined %}
+  {% for file in vm_custom_files %}
+    - {{ file | to_yaml() | trim }}
+  {% endfor %}
+  {% endif %}
   runcmd:
     - [ dpkg-reconfigure, initramfs-tools ]
   power_state:
-    delay: "+2"
+    delay: '+2'
     mode: poweroff
     message: Deployment done
     timeout: 30
