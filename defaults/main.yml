@@ -108,7 +108,7 @@ vm_user_data: |+
     - path: /etc/modprobe.d/blacklist-floppy.conf
       content: 'blacklist floppy'
       permissions: '0644'
-    - path: /etc/systemd/network/00-ensX.network
+    - path: /etc/systemd/network/999-ensX.network
       content: |
         [Match]
         Name=ens*
