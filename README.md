@@ -50,4 +50,5 @@ In general the next steps will be performed:
 * vm_packages_to_install - (list of stings) List of packages which need to be installed
 * vm_time_zone - (string) VM Time Zone
 * vm_custom_files - (list of dicts) You can create new files with it
+* vm_custom_runcmd - (list of lists) You can define custom command to run here
 * vm_user_data - (string) Whole cloud-config with will be passed inside VM

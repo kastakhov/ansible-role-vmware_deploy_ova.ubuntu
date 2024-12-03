@@ -71,6 +71,9 @@ vm_custom_files: []
 #   content: "Hello, World!\nASDASD\n"
 #   permissions: '0644'
 
+vm_custom_runcmd: []
+# - [ echo, "Hello, World!" ]
+
 # cloud-config for the VM
 vm_user_data: |+
   #cloud-config
@@ -132,6 +135,11 @@ vm_user_data: |+
   {% endif %}
   runcmd:
     - [ dpkg-reconfigure, initramfs-tools ]
+  {% if vm_custom_runcmd is defined %}
+  {% for runcmd in vm_custom_runcmd %}
+    - {{ runcmd | to_yaml() | trim }}
+  {% endfor %}
+  {% endif %}
   power_state:
     delay: '+2'
     mode: poweroff
