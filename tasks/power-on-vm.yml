@@ -9,7 +9,7 @@
     name: '{{ vm_hostname }}'
     state: poweredon
 
-- name: Waiting until VM will be powered off (max 10 minutes)
+- name: Waiting until VM will be powered on (max 10 minutes)
   community.vmware.vmware_guest_info:
     hostname: '{{ vmware_vc_url }}'
     username: '{{ vmware_vc_user }}'
