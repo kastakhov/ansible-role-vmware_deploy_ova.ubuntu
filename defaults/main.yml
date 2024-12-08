@@ -62,13 +62,11 @@ vm_time_zone: Etc/UTC
 vm_custom_files: []
 # - path: /foo/bar
 #   content: |
-#     "Hello, World!"
-#     asd
-#     asdasdf
-#     dasf123
+#     Hello
+#     World!
 #   permissions: '0644'
 # - path: /foo/asd
-#   content: "Hello, World!\nASDASD\n"
+#   content: "Hello, \nWorld!\n"
 #   permissions: '0644'
 
 vm_custom_runcmd: []
