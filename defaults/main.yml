@@ -75,6 +75,11 @@ vm_custom_files: []
 vm_custom_runcmd: []
 # - [ echo, "Hello, World!" ]
 
+vm_custom_bootcmd: []
+# - [ echo, "Hello, World!" ]
+# If you want to run a command only once, you can use cloud-init-per
+# - [ cloud-init-per, once, echo, "Hello, World!" ]
+
 # cloud-config for the VM
 vm_user_data: |+
   #cloud-config
@@ -139,6 +144,12 @@ vm_user_data: |+
   {% if vm_custom_runcmd is defined %}
   {% for runcmd in vm_custom_runcmd %}
     - {{ runcmd | to_yaml() | trim }}
+  {% endfor %}
+  {% endif %}
+  {% if vm_custom_bootcmd is defined %}
+  bootcmd:
+  {% for bootcmd in vm_custom_bootcmd %}
+    - {{ bootcmd | to_yaml() | trim }}
   {% endfor %}
   {% endif %}
   power_state:
