@@ -36,29 +36,11 @@ vm_user_data_debug: false
 # this key will be used in cloud-config for default user
 vm_public_key: ''
 
-vm_packages_to_install:
-- acl
-- apt-transport-https
-- ca-certificates
-- curl
-- dpkg
-- gawk
-- gnupg
-- gpg
-- grep
-- htop
-- iotop
-- nfs-common
-- nmap
-- open-iscsi
-- procps
-- python3-apt
-- software-properties-common
-- tmux
-- tzdata
-- util-linux
-- wget
-- xz-utils
+vm_packages_to_install: []
+# - acl
+# - apt-transport-https
+# - nfs-common
+# - open-iscsi
 
 vm_time_zone: Etc/UTC
 
@@ -98,7 +80,7 @@ vm_user_data: |+
   package_update: true
   package_upgrade: true
   {% if vm_packages_to_install is defined %}
-  packages: {{ vm_packages_to_install | to_yaml() | trim }}
+  packages: {{ vm_packages_to_install }}
   {% endif %}
   write_files:
     - path: /etc/systemd/networkd.conf
@@ -116,23 +98,6 @@ vm_user_data: |+
       permissions: '0644'
     - path: /etc/modprobe.d/blacklist-floppy.conf
       content: 'blacklist floppy'
-      permissions: '0644'
-    - path: /etc/systemd/network/999-ensX.network
-      content: |
-        [Match]
-        Name=ens*
-
-        [Network]
-        DHCP=yes
-        LinkLocalAddressing=ipv6
-        IPv6AcceptRA=yes
-
-        [DHCP]
-        RouteMetric=100
-        UseMTU=true
-      permissions: '0644'
-    - path: /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
-      content: 'network: {config: disabled}'
       permissions: '0644'
   {% if vm_custom_files is defined %}
   {% for file in vm_custom_files %}
