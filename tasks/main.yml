@@ -1,4 +1,10 @@
 ---
+- name: Write vm_user_data to file
+  ansible.builtin.copy:
+    content: "{{ vm_user_data }}"
+    dest: "{{ playbook_dir }}/.vm_user_data.yaml"
+  when: vm_user_data_debug
+
 - name: Running Download OVA task
   ansible.builtin.include_tasks: download-ova.yml
   run_once: true

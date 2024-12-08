@@ -30,6 +30,9 @@ cloud_image_version_name: noble
 # If you wanna redeploy the VM, otherwise it will be skipped
 vm_redeploy: false
 
+# If you wanna debug the cloud-config file
+vm_user_data_debug: false
+
 # this key will be used in cloud-config for default user
 vm_public_key: ''
 
